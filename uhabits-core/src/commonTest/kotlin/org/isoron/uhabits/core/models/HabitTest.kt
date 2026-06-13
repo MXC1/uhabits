@@ -84,6 +84,18 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
+    fun test_isEntered_yesAutoNotEntered() {
+        // A non-daily habit where the user entered YES_MANUAL on a previous day,
+        // which causes today to have YES_AUTO in computed entries via frequency logic.
+        // isEnteredToday() should still return false since the user made no entry today.
+        val h = modelFactory.buildHabit()
+        h.frequency = Frequency(1, 3)
+        h.originalEntries.add(Entry(getToday().minus(1), Entry.YES_MANUAL))
+        h.recompute()
+        assertFalse(h.isEnteredToday())
+    }
+
+    @Test
     fun test_isCompleted_numerical() {
         val h = modelFactory.buildHabit()
         h.type = HabitType.NUMERICAL
