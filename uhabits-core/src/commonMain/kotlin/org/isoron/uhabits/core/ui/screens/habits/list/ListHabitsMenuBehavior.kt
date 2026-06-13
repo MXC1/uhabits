@@ -50,6 +50,10 @@ class ListHabitsMenuBehavior(
         screen.showSettingsScreen()
     }
 
+    fun onViewGlobalScore() {
+        screen.showGlobalScoreScreen()
+    }
+
     fun onToggleShowArchived() {
         showArchived = !showArchived
         preferences.showArchived = showArchived
@@ -132,6 +136,7 @@ class ListHabitsMenuBehavior(
         fun applyTheme()
         fun showAboutScreen()
         fun showFAQScreen()
+        fun showGlobalScoreScreen()
         fun showSettingsScreen()
         fun showSelectHabitTypeDialog()
     }

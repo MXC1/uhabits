@@ -95,6 +95,12 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/actionGlobalScore"
+        android:orderInCategory="100"
+        android:title="@string/global_score"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/actionAbout"
         android:orderInCategory="100"
         android:title="@string/about"

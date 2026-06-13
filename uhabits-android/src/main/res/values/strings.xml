@@ -159,6 +159,14 @@
     <string name="every_x_days">Every %d days</string>
     <string name="every_x_weeks">Every %d weeks</string>
     <string name="score">Score</string>
+    <string name="global_score">Global score</string>
+    <string name="global_score_today">Global score today</string>
+    <string name="global_score_percent_value">%1$d%%</string>
+    <string name="no_visible_habits_to_score">No habits to score yet.</string>
+    <plurals name="visible_habits_count">
+        <item quantity="one">%d visible habit</item>
+        <item quantity="other">%d visible habits</item>
+    </plurals>
     <string name="reminder_sound">Reminder sound</string>
     <string name="none">None</string>
     <string name="filter">Filter</string>

@@ -263,6 +263,11 @@ class ListHabitsScreen(
         activity.startActivityForResult(intent, REQUEST_SETTINGS)
     }
 
+    override fun showGlobalScoreScreen() {
+        val intent = intentFactory.startGlobalScoreActivity(activity)
+        activity.startActivity(intent)
+    }
+
     override fun showColorPicker(defaultColor: PaletteColor, callback: OnColorPickedCallback) {
         val picker = colorPickerFactory.create(defaultColor, themeSwitcher.currentTheme!!)
         picker.setListener(callback)
