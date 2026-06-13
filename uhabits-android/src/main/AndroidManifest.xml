@@ -122,7 +122,7 @@
 
         <activity
             android:name=".activities.habits.score.GlobalScoreActivity"
-            android:label="@string/global_score">
+            android:label="@string/global_trends">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.habits.list.ListHabitsActivity" />

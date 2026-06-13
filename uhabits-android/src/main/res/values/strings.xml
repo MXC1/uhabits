@@ -159,10 +159,15 @@
     <string name="every_x_days">Every %d days</string>
     <string name="every_x_weeks">Every %d weeks</string>
     <string name="score">Score</string>
-    <string name="global_score">Global score</string>
+    <string name="global_trends">Global trends</string>
     <string name="global_score_today">Global score today</string>
     <string name="global_score_percent_value">%1$d%%</string>
     <string name="no_visible_habits_to_score">No habits to score yet.</string>
+    <string name="top_movers">Top movers</string>
+    <string name="biggest_increases">Biggest increases in last 30 days</string>
+    <string name="biggest_decreases">Biggest decreases in last 30 days</string>
+    <string name="no_movers_yet">No changes yet.</string>
+    <string name="mover_change_value">%1$+.1f pp</string>
     <plurals name="visible_habits_count">
         <item quantity="one">%d visible habit</item>
         <item quantity="other">%d visible habits</item>
