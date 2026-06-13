@@ -5,7 +5,8 @@ This pages describes how to download and build the app from the source code. If 
 ## Contents
 
 * [Build using Android Studio](#build-using-android-studio)
-* [Build from the command line](#build-from-the-command-line)
+* [Build from the command line (Linux)](#build-from-the-command-line)
+* [Build from the command line (Windows)](#build-from-the-command-line-windows)
 
 ## Build using Android Studio
 
@@ -37,7 +38,7 @@ The repository will be downloaded to the directory `uhabits`.
 6. Click the menu "Run" and "uhabits-android". The application should launch.
 
 
-## Build from the command line
+## Build from the command line (Linux)
 
 The following instructions were tested on **Ubuntu Linux 18.04 LTS** and may need to be modified for other operating systems.
 
@@ -87,3 +88,86 @@ The repository will be downloaded to the directory `uhabits`.
 If the compilation is successful, a debug APK will be generated somewhere inside the folder `uhabits-android/build/`. Currently, the full path is `./uhabits-android/build/outputs/apk/debug/uhabits-android-debug.apk`, but it may change in the future.
 
 The APK can be installed using the tool `adb`, which should have been automatically installed at `/opt/android-sdk/platform-tools/adb` during compilation of the project.
+
+---
+
+## Build from the command line (Windows)
+
+The following instructions were tested on **Windows 11** with **Android Studio** already installed. Android Studio's bundled JDK is used, so no separate Java installation is required.
+
+### Step 1: Configure JAVA_HOME (one-time setup)
+
+Android Studio ships with a JDK. Add `JAVA_HOME` to your PowerShell profile so it is set in every new terminal automatically:
+
+```powershell
+Add-Content $PROFILE "`n`$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'"
+```
+
+Then apply it to your current session without restarting:
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+```
+
+> **Note:** Using `[System.Environment]::SetEnvironmentVariable(...)` writes to the Windows registry but will **not** take effect in VS Code's integrated terminal until VS Code itself is fully restarted. The PowerShell profile approach above is more reliable.
+
+### Step 2: Configure the Android SDK location (one-time setup)
+
+Create a file named `local.properties` in the root of the project with the following content:
+
+```
+sdk.dir=C\:\\Users\\<your-username>\\AppData\\Local\\Android\\Sdk
+```
+
+Replace `<your-username>` with your Windows username. For example, if your username is `micow`:
+
+```
+sdk.dir=C\:\\Users\\micow\\AppData\\Local\\Android\\Sdk
+```
+
+### Step 3: Enable USB debugging on your phone (one-time setup)
+
+1. On your Android phone, go to **Settings → About phone** and tap **Build number** 7 times to enable Developer Options.
+2. Go to **Settings → Developer options** and turn on **USB debugging**.
+3. Connect your phone via USB and tap **Allow** on the "Allow USB debugging?" popup.
+
+### Step 4: Build the APK
+
+Navigate to the project root in PowerShell and run:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+On success, the APK is generated at:
+```
+uhabits-android\build\outputs\apk\debug\uhabits-android-debug.apk
+```
+
+### Step 5: Install the APK on your phone
+
+With your phone connected via USB:
+
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r "uhabits-android\build\outputs\apk\debug\uhabits-android-debug.apk"
+```
+
+The `-r` flag reinstalls over any existing version.
+
+### Rebuilding after code changes
+
+After making changes, just repeat Step 4 and Step 5. You can chain them into one command:
+
+```powershell
+.\gradlew.bat assembleDebug ; & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r "uhabits-android\build\outputs\apk\debug\uhabits-android-debug.apk"
+```
+
+### Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `JAVA_HOME is not set` | Re-run the Step 1 command and restart your terminal |
+| `SDK location not found` | Check that `local.properties` exists in the project root with the correct path |
+| `adb.exe: no devices/emulators found` | Check USB cable, switch USB mode to "File Transfer" on your phone, and accept the USB debugging prompt |
+| Device not listed by `adb devices` | Install the USB driver for your phone model (e.g. [Samsung USB Driver](https://developer.samsung.com/android-usb-driver.html)) |
+
