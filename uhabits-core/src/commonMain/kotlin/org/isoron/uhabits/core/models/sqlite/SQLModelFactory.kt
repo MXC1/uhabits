@@ -25,13 +25,15 @@ import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.ScoreList
 import org.isoron.uhabits.core.models.StreakList
+import org.isoron.uhabits.core.preferences.Preferences
 
 /**
  * Factory that provides models backed by an SQLite database.
  */
 @Inject
 class SQLModelFactory(
-    val database: org.isoron.platform.io.Database
+    val database: org.isoron.platform.io.Database,
+    private val preferences: Preferences? = null
 ) : ModelFactory {
     val habitRepository = HabitRepository(database)
     val entryRepository = EntryRepository(database)
@@ -40,5 +42,7 @@ class SQLModelFactory(
     override fun buildComputedEntries() = EntryList()
     override fun buildHabitList() = SQLiteHabitList(this)
     override fun buildScoreList() = ScoreList()
-    override fun buildStreakList() = StreakList()
+    override fun buildStreakList() = StreakList {
+        preferences?.areSkippedDaysExcludedFromStreaks ?: false
+    }
 }

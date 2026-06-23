@@ -122,7 +122,8 @@ abstract class HabitsApplicationComponent(
 
     @AppScope
     @Provides
-    open fun modelFactory(): ModelFactory = SQLModelFactory(providedDb)
+    open fun modelFactory(preferences: Preferences): ModelFactory =
+        SQLModelFactory(providedDb, preferences)
 
     @AppScope
     @Provides

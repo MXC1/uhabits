@@ -23,6 +23,7 @@ import org.isoron.platform.Synchronized
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.TruncateField
+import org.isoron.uhabits.core.models.Entry.Companion.NO
 import org.isoron.uhabits.core.models.Entry.Companion.SKIP
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
@@ -154,8 +155,9 @@ open class EntryList {
     companion object {
         /**
          * Converts a list of intervals into a list of entries. Entries that fall outside of any
-         * interval receive value UNKNOWN. Entries that fall within an interval but do not appear
-         * in [original] receive value YES_AUTO. Entries provided in [original] are copied over.
+         * interval receive value UNKNOWN, as do interval entries not present in [original].
+         * Original entries with value NO that fall inside an interval receive value YES_AUTO.
+         * All other original entries are copied over unchanged.
          *
          * The intervals should be sorted by date. The first element in the list should
          * correspond to the newest interval.
@@ -186,27 +188,23 @@ open class EntryList {
                 current = current.minus(1)
             }
 
-            // Create YES_AUTO entries
+            // Build set of dates covered by intervals
+            val intervalDates = mutableSetOf<LocalDate>()
             intervals.forEach { interval ->
                 current = interval.end
                 while (current >= interval.begin) {
-                    val offset = current.daysUntil(to)
-                    result[offset] = Entry(current, YES_AUTO)
+                    intervalDates.add(current)
                     current = current.minus(1)
                 }
             }
 
-            // Copy original entries
+            // Copy original entries; only NO entries within an interval become YES_AUTO
             original.forEach { entry ->
                 val offset = entry.date.daysUntil(to)
-                val value = if (
-                    result[offset].value == UNKNOWN ||
-                    entry.value == SKIP ||
-                    entry.value == YES_MANUAL
-                ) {
-                    entry.value
-                } else {
-                    YES_AUTO
+                val value = when {
+                    entry.value == SKIP || entry.value == YES_MANUAL -> entry.value
+                    entry.value == NO && entry.date in intervalDates -> YES_AUTO
+                    else -> entry.value
                 }
                 result[offset] = Entry(entry.date, value, entry.notes)
             }

@@ -104,7 +104,7 @@ class ListHabitsRegressionTest : BaseUserInterfaceTest() {
         changeFrequencyToMonthly("Read books")
         longPressCheckmarks("Read books", count = 2)
         longPressCheckmarks("Read books", count = 1)
-        verifyDisplaysCheckmarks("Meditate", listOf(YES_AUTO, YES_MANUAL, YES_AUTO, YES_MANUAL))
+        verifyDisplaysCheckmarks("Meditate", listOf(YES_AUTO, YES_MANUAL, UNKNOWN, YES_MANUAL))
         CommonSteps.verifyDisplaysTextInSequence(
             "Wake up early",
             "Read books",

@@ -211,6 +211,12 @@ open class Preferences(private val storage: Storage) {
             storage.putBoolean("pref_skip_enabled", value)
         }
 
+    open var areSkippedDaysExcludedFromStreaks: Boolean
+        get() = storage.getBoolean("pref_skip_exclude_from_streaks", false)
+        set(value) {
+            storage.putBoolean("pref_skip_exclude_from_streaks", value)
+        }
+
     open var areQuestionMarksEnabled: Boolean
         get() = storage.getBoolean("pref_unknown_enabled", false)
         set(value) {

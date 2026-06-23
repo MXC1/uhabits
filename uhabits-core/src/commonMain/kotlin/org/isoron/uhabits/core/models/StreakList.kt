@@ -22,7 +22,9 @@ import org.isoron.platform.Synchronized
 import org.isoron.platform.time.LocalDate
 import kotlin.math.min
 
-class StreakList {
+class StreakList(
+    private val shouldExcludeSkippedDaysFromStreaks: () -> Boolean = { false }
+) {
     private val list = ArrayList<Streak>()
 
     @Synchronized
@@ -43,10 +45,14 @@ class StreakList {
         targetType: NumericalHabitType
     ) {
         list.clear()
+        val excludeSkippedDaysFromStreaks = shouldExcludeSkippedDaysFromStreaks()
         val dates = computedEntries
             .getByInterval(from, to)
             .filter {
                 val value = it.value
+                if (excludeSkippedDaysFromStreaks && value == Entry.SKIP) {
+                    return@filter false
+                }
                 if (isNumerical) {
                     when (targetType) {
                         NumericalHabitType.AT_LEAST -> value / 1000.0 >= targetValue
