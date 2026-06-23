@@ -83,12 +83,12 @@ class GlobalScoreActivity : AppCompatActivity() {
         val matcher = if (preferences.areQuestionMarksEnabled) {
             HabitMatcher(
                 isArchivedAllowed = preferences.showArchived,
-                isEnteredAllowed = preferences.showCompleted
+                isEnteredAllowed = true
             )
         } else {
             HabitMatcher(
                 isArchivedAllowed = preferences.showArchived,
-                isCompletedAllowed = preferences.showCompleted
+                isCompletedAllowed = true
             )
         }
 
