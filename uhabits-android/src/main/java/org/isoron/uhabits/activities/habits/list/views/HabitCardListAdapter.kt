@@ -55,6 +55,7 @@ class HabitCardListAdapter(
     val observable: ModelObservable = ModelObservable()
     private var listView: HabitCardListView? = null
     val selected: LinkedList<Habit> = LinkedList()
+    override var visibleCheckmarkCount: Int = 1
     override fun atMidnight() {
         cache.refreshAllHabits()
     }

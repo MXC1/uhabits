@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -181,6 +182,33 @@ class HabitListTest : BaseUnitTest() {
             )
         )
         assertEquals(filteredList.primaryOrder, HabitList.Order.BY_COLOR_ASC)
+    }
+
+    @Test
+    fun testFilter_hideEnteredOnlyWhenAllVisibleDaysEntered() {
+        val today = getToday()
+        val fullyEntered = fixtures.createEmptyHabit(name = "Fully entered")
+        fullyEntered.originalEntries.add(Entry(today, Entry.YES_MANUAL))
+        fullyEntered.originalEntries.add(Entry(today.minus(1), Entry.NO))
+        fullyEntered.originalEntries.add(Entry(today.minus(2), Entry.YES_MANUAL))
+        fullyEntered.recompute()
+        habitList.add(fullyEntered)
+
+        val partiallyEntered = fixtures.createEmptyHabit(name = "Partially entered")
+        partiallyEntered.originalEntries.add(Entry(today, Entry.YES_MANUAL))
+        partiallyEntered.recompute()
+        habitList.add(partiallyEntered)
+
+        val filtered = habitList.getFiltered(
+            HabitMatcher(
+                isArchivedAllowed = true,
+                isEnteredAllowed = false,
+                numberOfVisibleDays = 3
+            )
+        )
+
+        assertEquals(-1, filtered.indexOf(fullyEntered))
+        assertNotEquals(-1, filtered.indexOf(partiallyEntered))
     }
 
     @Test

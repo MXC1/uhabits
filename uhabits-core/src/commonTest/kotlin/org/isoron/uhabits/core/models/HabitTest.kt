@@ -96,6 +96,33 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
+    fun test_isEnteredForLastDays_noEntries() {
+        val h = modelFactory.buildHabit()
+        assertFalse(h.isEnteredForLastDays(3))
+    }
+
+    @Test
+    fun test_isEnteredForLastDays_onlyTodayEntered() {
+        val h = modelFactory.buildHabit()
+        h.originalEntries.add(Entry(getToday(), Entry.YES_MANUAL))
+        h.recompute()
+        // Today alone is fully entered...
+        assertTrue(h.isEnteredForLastDays(1))
+        // ...but yesterday is still blank ("?"), so a 2-day window is not fully entered.
+        assertFalse(h.isEnteredForLastDays(2))
+    }
+
+    @Test
+    fun test_isEnteredForLastDays_allDaysEntered() {
+        val h = modelFactory.buildHabit()
+        h.originalEntries.add(Entry(getToday(), Entry.YES_MANUAL))
+        h.originalEntries.add(Entry(getToday().minus(1), Entry.NO))
+        h.originalEntries.add(Entry(getToday().minus(2), Entry.YES_MANUAL))
+        h.recompute()
+        assertTrue(h.isEnteredForLastDays(3))
+    }
+
+    @Test
     fun test_isCompleted_numerical() {
         val h = modelFactory.buildHabit()
         h.type = HabitType.NUMERICAL

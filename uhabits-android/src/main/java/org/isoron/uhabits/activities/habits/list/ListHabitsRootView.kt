@@ -78,6 +78,12 @@ class ListHabitsRootView(
     val hintView: HintView
     val header = HeaderView(context, preferences, midnightTimer)
 
+    /**
+     * Invoked whenever the number of checkmark cells visible on screen changes, so that
+     * callers can recompute filters (such as "hide entered") that depend on it.
+     */
+    var onVisibleCheckmarkCountChanged: () -> Unit = {}
+
     init {
         val hints = resources.getStringArray(R.array.hints)
         val hintList = hintListFactory.create(hints)
@@ -136,6 +142,10 @@ class ListHabitsRootView(
         header.buttonCount = count
         header.setMaxDataOffset(max(MAX_CHECKMARK_COUNT - count, 0))
         listView.checkmarkCount = count
+        if (listAdapter.visibleCheckmarkCount != count) {
+            listAdapter.visibleCheckmarkCount = count
+            onVisibleCheckmarkCountChanged()
+        }
         super.onSizeChanged(w, h, oldw, oldh)
     }
 

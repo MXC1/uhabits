@@ -106,12 +106,22 @@ class ListHabitsMenuBehavior(
         updateAdapterFilter()
     }
 
+    /**
+     * Called when the number of checkmark cells visible on screen changes, for example
+     * after a screen rotation. The filter needs to be recomputed since "hide entered"
+     * depends on how many cells are currently on display.
+     */
+    fun onVisibleCheckmarkCountChanged() {
+        updateAdapterFilter()
+    }
+
     private fun updateAdapterFilter() {
         if (preferences.areQuestionMarksEnabled) {
             adapter.setFilter(
                 HabitMatcher(
                     isArchivedAllowed = showArchived,
-                    isEnteredAllowed = showCompleted
+                    isEnteredAllowed = showCompleted,
+                    numberOfVisibleDays = adapter.visibleCheckmarkCount
                 )
             )
         } else {
@@ -130,6 +140,11 @@ class ListHabitsMenuBehavior(
         fun setFilter(matcher: HabitMatcher)
         var primaryOrder: HabitList.Order
         var secondaryOrder: HabitList.Order
+
+        /**
+         * Number of checkmark cells currently visible on screen for each habit row.
+         */
+        val visibleCheckmarkCount: Int
     }
 
     interface Screen {
