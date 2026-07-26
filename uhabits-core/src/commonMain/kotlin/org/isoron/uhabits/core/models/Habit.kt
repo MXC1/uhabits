@@ -76,6 +76,19 @@ data class Habit(
         return value != Entry.UNKNOWN && value != Entry.YES_AUTO
     }
 
+    /**
+     * Returns whether every one of the last [numberOfDays] days (including today) has a
+     * known entry, i.e. none of them would be displayed as an empty "?" cell on screen.
+     */
+    fun isEnteredForLastDays(numberOfDays: Int): Boolean {
+        val today = getToday()
+        val days = maxOf(numberOfDays, 1)
+        for (offset in 0 until days) {
+            if (computedEntries.get(today.minus(offset)).value == Entry.UNKNOWN) return false
+        }
+        return true
+    }
+
     fun recompute() {
         computedEntries.recomputeFrom(
             originalEntries = originalEntries,

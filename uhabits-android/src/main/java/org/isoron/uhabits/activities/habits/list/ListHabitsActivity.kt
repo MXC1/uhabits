@@ -97,6 +97,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         adapter = component.habitCardListAdapter
         taskRunner = appComponent.taskRunner
         menu = component.listHabitsMenu
+        rootView.onVisibleCheckmarkCountChanged = { menu.behavior.onVisibleCheckmarkCountChanged() }
         Thread.setDefaultUncaughtExceptionHandler(BaseExceptionHandler(this))
         component.listHabitsBehavior.onStartup()
         rootView.applyRootViewInsets()
