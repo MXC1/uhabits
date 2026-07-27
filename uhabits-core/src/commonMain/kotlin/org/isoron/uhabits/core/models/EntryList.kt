@@ -84,17 +84,18 @@ open class EntryList {
      * Replaces all entries in this list by entries computed automatically from another list.
      *
      * For boolean habits, this function creates additional entries (with value YES_AUTO) according
-     * to the frequency of the habit. For numerical habits, this function simply copies all entries.
+     * to the frequency of the habit. For numerical and mood habits, this function simply copies
+     * all entries.
      */
     @Synchronized
     open fun recomputeFrom(
         originalEntries: EntryList,
         frequency: Frequency,
-        isNumerical: Boolean
+        type: HabitType
     ) {
         clear()
         val original = originalEntries.getKnown()
-        if (isNumerical) {
+        if (type != HabitType.YES_NO) {
             original.forEach { add(it) }
         } else {
             val intervals = buildIntervals(frequency, original)

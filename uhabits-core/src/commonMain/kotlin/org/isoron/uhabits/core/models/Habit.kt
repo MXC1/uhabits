@@ -52,6 +52,9 @@ data class Habit(
     val isNumerical: Boolean
         get() = type == HabitType.NUMERICAL
 
+    val isMood: Boolean
+        get() = type == HabitType.MOOD
+
     val uriString: String
         get() = "content://org.isoron.uhabits/habit/$id"
 
@@ -60,13 +63,13 @@ data class Habit(
     fun isCompletedToday(): Boolean {
         val today = getToday()
         val value = computedEntries.get(today).value
-        return if (isNumerical) {
-            when (targetType) {
+        return when (type) {
+            HabitType.NUMERICAL -> when (targetType) {
                 NumericalHabitType.AT_LEAST -> value / 1000.0 >= targetValue
                 NumericalHabitType.AT_MOST -> false
             }
-        } else {
-            value != Entry.NO && value != Entry.UNKNOWN
+            HabitType.MOOD -> value != Entry.UNKNOWN
+            HabitType.YES_NO -> value != Entry.NO && value != Entry.UNKNOWN
         }
     }
 
@@ -93,7 +96,7 @@ data class Habit(
         computedEntries.recomputeFrom(
             originalEntries = originalEntries,
             frequency = frequency,
-            isNumerical = isNumerical
+            type = type
         )
 
         val today = getToday()
@@ -104,7 +107,7 @@ data class Habit(
 
         scores.recompute(
             frequency = frequency,
-            isNumerical = isNumerical,
+            type = type,
             numericalHabitType = targetType,
             targetValue = targetValue,
             computedEntries = computedEntries,
@@ -116,7 +119,7 @@ data class Habit(
             computedEntries,
             from,
             to,
-            isNumerical,
+            type,
             targetValue,
             targetType
         )

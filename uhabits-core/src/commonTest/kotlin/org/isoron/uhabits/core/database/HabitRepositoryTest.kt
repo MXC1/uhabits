@@ -202,4 +202,29 @@ class HabitRepositoryTest {
 
         db.close()
     }
+
+    @Test
+    fun testMoodTypeSurvivesRoundTrip() = runTest {
+        val db = TestDatabaseHelper.createEmptyDatabase()
+        val repo = HabitRepository(db)
+
+        val original = HabitData(
+            name = "Mood",
+            question = "How did you feel today?",
+            position = 0,
+            type = 2, // HabitType.MOOD.value
+            uuid = "mood-uuid"
+        )
+        original.id = repo.insert(original)
+
+        val loaded = repo.findAll().single()
+        assertEquals(2, loaded.type)
+        // Fields that are only meaningful for numerical habits should just persist their
+        // (unused) defaults for mood habits, same as they already do for boolean habits.
+        assertEquals(0.0, loaded.targetValue)
+        assertEquals(0, loaded.targetType)
+        assertEquals("", loaded.unit)
+
+        db.close()
+    }
 }

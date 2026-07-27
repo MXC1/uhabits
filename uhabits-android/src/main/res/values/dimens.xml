@@ -27,4 +27,7 @@
     <dimen name="smallerTextSize">12sp</dimen>
     <dimen name="tinyTextSize">10sp</dimen>
     <dimen name="habitNameWidth">160dp</dimen>
+    <dimen name="moodGridHeight">280dp</dimen>
+    <dimen name="moodCellTextSize">11sp</dimen>
+    <dimen name="moodAxisTextSize">11sp</dimen>
 </resources>

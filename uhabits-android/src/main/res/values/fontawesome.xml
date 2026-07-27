@@ -30,6 +30,11 @@
 	<string translatable="false" name="fa_exclamation_circle">&#xf06a;</string>
 	<string translatable="false" name="fa_question">&#xf128;</string>
 	<string translatable="false" name="fa_umbrella_beach">&#xf5ca;</string>
+	<string translatable="false" name="fa_thumbs_o_down">&#xf165;</string>
+	<string translatable="false" name="fa_frown_o">&#xf119;</string>
+	<string translatable="false" name="fa_meh_o">&#xf11a;</string>
+	<string translatable="false" name="fa_smile_o">&#xf118;</string>
+	<string translatable="false" name="fa_thumbs_o_up">&#xf164;</string>
 
     <!--<string translatable="false" name="fa_glass">&#xf000;</string>-->
 	<!--<string translatable="false" name="fa_music">&#xf001;</string>-->

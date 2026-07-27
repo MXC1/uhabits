@@ -40,7 +40,7 @@ class StreakList(
         computedEntries: EntryList,
         from: LocalDate,
         to: LocalDate,
-        isNumerical: Boolean,
+        type: HabitType,
         targetValue: Double,
         targetType: NumericalHabitType
     ) {
@@ -53,13 +53,15 @@ class StreakList(
                 if (excludeSkippedDaysFromStreaks && value == Entry.SKIP) {
                     return@filter false
                 }
-                if (isNumerical) {
-                    when (targetType) {
+                when (type) {
+                    HabitType.NUMERICAL -> when (targetType) {
                         NumericalHabitType.AT_LEAST -> value / 1000.0 >= targetValue
                         NumericalHabitType.AT_MOST -> value != Entry.UNKNOWN && value / 1000.0 <= targetValue
                     }
-                } else {
-                    value > 0
+                    // Mood has no target to hit; the streak simply tracks consecutive days on
+                    // which a mood was actually logged.
+                    HabitType.MOOD -> Mood.isKnownValue(value)
+                    HabitType.YES_NO -> value > 0
                 }
             }
             .map { it.date }

@@ -126,4 +126,20 @@ class EntryRepositoryTest {
 
         db.close()
     }
+
+    @Test
+    fun testMoodScaledValueSurvivesRoundTrip() = runTest {
+        val db = TestDatabaseHelper.createEmptyDatabase()
+        val repo = EntryRepository(db)
+        val habitId = insertTestHabit(db)
+
+        // A mood level of 4, stored the same x1000-scaled way numerical values are.
+        val original = EntryData(habitId = habitId, timestamp = 1700000000000, value = 4000)
+        original.id = repo.insert(original)
+
+        val loaded = repo.findAllByHabitId(habitId).single()
+        assertEquals(4000, loaded.value)
+
+        db.close()
+    }
 }

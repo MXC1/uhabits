@@ -530,3 +530,42 @@ class NumericalAtMostScoreListTest : NumericalScoreListTest() {
         assertCloseTo(0.948077, habit.scores[today].value, E)
     }
 }
+
+class MoodScoreListTest : BaseScoreListTest() {
+    @BeforeTest
+    override fun setUp() {
+        super.setUp()
+        habit = fixtures.createEmptyMoodHabit()
+    }
+
+    private fun addMood(day: Int, level: Int) {
+        habit.originalEntries.add(Entry(today.minus(day), Mood.toEntryValue(level)))
+    }
+
+    private fun addMoods(from: Int, to: Int, level: Int) {
+        for (i in from until to) addMood(i, level)
+        habit.recompute()
+    }
+
+    /**
+     * Mood habits have no target or "good/bad" direction to compute a percentage from, so they
+     * have no score at all -- it stays at 0.0 no matter what was logged. See ShowHabitView,
+     * HabitCardView and GlobalScoreActivity, which hide the score UI and exclude mood habits
+     * from aggregate scoring entirely.
+     */
+    @Test
+    fun test_moodHabitsHaveNoScore() {
+        addMoods(0, 20, 5)
+        for (day in 0 until 20) {
+            assertCloseTo(0.0, habit.scores[today.minus(day)].value, E)
+        }
+    }
+
+    @Test
+    fun test_moodScoreStaysZeroWithSkipOrUnknownEntries() {
+        addMoods(1, 15, 5)
+        habit.originalEntries.add(Entry(today, Entry.SKIP))
+        habit.recompute()
+        assertCloseTo(0.0, habit.scores[today].value, E)
+    }
+}

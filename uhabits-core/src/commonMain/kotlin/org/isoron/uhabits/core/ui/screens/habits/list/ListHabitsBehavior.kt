@@ -36,6 +36,7 @@ import org.isoron.uhabits.core.tasks.ExportCSVTask
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.callbacks.CheckMarkDialogCallback
+import org.isoron.uhabits.core.ui.callbacks.MoodPickerCallback
 import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import kotlin.math.roundToInt
 
@@ -55,28 +56,40 @@ open class ListHabitsBehavior(
 
     open fun onEdit(habit: Habit, date: LocalDate, x: Float, y: Float) {
         val entry = habit.computedEntries.get(date)
-        if (habit.type == HabitType.NUMERICAL) {
-            val oldValue = entry.value.toDouble() / 1000
-            screen.showNumberPopup(oldValue, entry.notes) { newValue: Double, newNotes: String ->
-                val value = (newValue * 1000).roundToInt()
-                if (newValue != oldValue) {
-                    if (
-                        (habit.targetType == AT_LEAST && newValue >= habit.targetValue) ||
-                        (habit.targetType == AT_MOST && newValue <= habit.targetValue)
-                    ) {
-                        screen.showConfetti(habit.color, x, y)
+        when (habit.type) {
+            HabitType.NUMERICAL -> {
+                val oldValue = entry.value.toDouble() / 1000
+                screen.showNumberPopup(oldValue, entry.notes) { newValue: Double, newNotes: String ->
+                    val value = (newValue * 1000).roundToInt()
+                    if (newValue != oldValue) {
+                        if (
+                            (habit.targetType == AT_LEAST && newValue >= habit.targetValue) ||
+                            (habit.targetType == AT_MOST && newValue <= habit.targetValue)
+                        ) {
+                            screen.showConfetti(habit.color, x, y)
+                        }
                     }
+                    commandRunner.run(CreateRepetitionCommand(habitList, habit, date, value, newNotes))
                 }
-                commandRunner.run(CreateRepetitionCommand(habitList, habit, date, value, newNotes))
             }
-        } else {
-            screen.showCheckmarkPopup(
-                entry.value,
-                entry.notes,
-                habit.color
-            ) { newValue: Int, newNotes: String ->
-                if (newValue != entry.value && newValue == YES_MANUAL) screen.showConfetti(habit.color, x, y)
-                commandRunner.run(CreateRepetitionCommand(habitList, habit, date, newValue, newNotes))
+            HabitType.MOOD -> {
+                screen.showMoodPopup(
+                    entry.value,
+                    entry.notes,
+                    habit.color
+                ) { newValue: Int, newNotes: String ->
+                    commandRunner.run(CreateRepetitionCommand(habitList, habit, date, newValue, newNotes))
+                }
+            }
+            HabitType.YES_NO -> {
+                screen.showCheckmarkPopup(
+                    entry.value,
+                    entry.notes,
+                    habit.color
+                ) { newValue: Int, newNotes: String ->
+                    if (newValue != entry.value && newValue == YES_MANUAL) screen.showConfetti(habit.color, x, y)
+                    commandRunner.run(CreateRepetitionCommand(habitList, habit, date, newValue, newNotes))
+                }
             }
         }
     }
@@ -172,6 +185,12 @@ open class ListHabitsBehavior(
             notes: String,
             color: PaletteColor,
             callback: CheckMarkDialogCallback
+        )
+        fun showMoodPopup(
+            selectedValue: Int,
+            notes: String,
+            color: PaletteColor,
+            callback: MoodPickerCallback
         )
         fun showSendBugReportToDeveloperScreen(log: String)
         fun showSendFileScreen(filename: String)

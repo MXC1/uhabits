@@ -25,10 +25,12 @@ import dev.mokkery.verify
 import kotlinx.coroutines.test.runTest
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
+import org.isoron.uhabits.core.models.Mood
 import org.isoron.uhabits.core.tasks.CoroutineTaskRunner
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ShowHabitMenuPresenterTest : BaseUnitTest() {
     private lateinit var system: ShowHabitMenuPresenter.System
@@ -66,5 +68,24 @@ class ShowHabitMenuPresenterTest : BaseUnitTest() {
         (taskRunner as CoroutineTaskRunner).await()
         val files = outputDir.listFiles()
         assertEquals(1, files!!.size)
+    }
+
+    @Test
+    fun testOnRandomize_mood() {
+        val moodHabit = fixtures.createEmptyMoodHabit()
+        val moodMenu = ShowHabitMenuPresenter(
+            commandRunner,
+            moodHabit,
+            habitList,
+            screen,
+            system,
+            taskRunner
+        )
+        moodMenu.onRandomize()
+        val entries = moodHabit.originalEntries.getKnown()
+        assertTrue(entries.isNotEmpty())
+        // Every generated value must be a valid, unambiguous mood entry -- never a raw level
+        // (1..5) or something that collides with the shared boolean sentinels (-1..3).
+        assertTrue(entries.all { Mood.isKnownValue(it.value) })
     }
 }

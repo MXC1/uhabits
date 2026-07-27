@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2016-2025 Álinson Santos Xavier <git@axavier.org>
+  ~
+  ~ This file is part of Loop Habit Tracker.
+  ~
+  ~ Loop Habit Tracker is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by the
+  ~ Free Software Foundation, either version 3 of the License, or (at your
+  ~ option) any later version.
+  ~
+  ~ Loop Habit Tracker is distributed in the hope that it will be useful, but
+  ~ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/checkmark_dialog_bg"
+    android:minWidth="252dp"
+    android:minHeight="128dp"
+    android:orientation="vertical"
+    app:divider="@drawable/checkmark_dialog_divider"
+    app:showDividers="middle">
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/notes"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/transparent"
+        android:gravity="center"
+        android:hint="@string/notes"
+        android:inputType="textCapSentences|textMultiLine"
+        android:padding="4dp"
+        android:text=""
+        android:textSize="@dimen/smallTextSize" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/moodGridHeight"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingEnd="4dp"
+                android:text="@string/mood_axis_high_energy"
+                android:textColor="?attr/contrast60"
+                android:textSize="@dimen/moodAxisTextSize" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingEnd="4dp"
+                android:text="@string/mood_axis_low_energy"
+                android:textColor="?attr/contrast60"
+                android:textSize="@dimen/moodAxisTextSize" />
+        </LinearLayout>
+
+        <!-- The grid and its bottom axis labels share this column so the labels line up with
+             the grid's actual width, rather than the full width of the row above (which also
+             includes the vertical axis label column). -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Populated programmatically by MoodDialog with a 5x5 grid of valence x arousal
+                 cells. -->
+            <LinearLayout
+                android:id="@+id/moodGrid"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/moodGridHeight"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/mood_axis_unpleasant"
+                    android:textColor="?attr/contrast60"
+                    android:textSize="@dimen/moodAxisTextSize" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/mood_axis_pleasant"
+                    android:textColor="?attr/contrast60"
+                    android:textSize="@dimen/moodAxisTextSize" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/moodExtraButtons"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        app:divider="@drawable/checkmark_dialog_divider"
+        app:showDividers="middle">
+
+        <TextView
+            android:id="@+id/skipBtnMood"
+            style="@style/CheckmarkPopupBtn"
+            android:text="@string/fa_skipped" />
+
+        <TextView
+            android:id="@+id/unknownBtnMood"
+            style="@style/CheckmarkPopupBtn"
+            android:text="@string/fa_question" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.LinearLayoutCompat>

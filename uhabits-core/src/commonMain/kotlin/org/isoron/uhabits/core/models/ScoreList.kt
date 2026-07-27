@@ -65,7 +65,7 @@ class ScoreList {
     @Synchronized
     fun recompute(
         frequency: Frequency,
-        isNumerical: Boolean,
+        type: HabitType,
         numericalHabitType: NumericalHabitType,
         targetValue: Double,
         computedEntries: EntryList,
@@ -83,53 +83,63 @@ class ScoreList {
         // For non-daily boolean habits, we double the numerator and the denominator to smooth
         // out irregular repetition schedules (for example, weekly habits performed on different
         // days of the week)
-        if (!isNumerical && freq < 1.0) {
+        if (type == HabitType.YES_NO && freq < 1.0) {
             numerator *= 2
             denominator *= 2
         }
 
-        var previousValue = if (isNumerical && isAtMost) 1.0 else 0.0
+        var previousValue = if (type == HabitType.NUMERICAL && isAtMost) 1.0 else 0.0
         for (i in values.indices) {
             val offset = values.size - i - 1
-            if (isNumerical) {
-                rollingSum += max(0, values[offset])
-                if (offset + denominator < values.size) {
-                    rollingSum -= max(0, values[offset + denominator])
-                }
+            when (type) {
+                HabitType.NUMERICAL -> {
+                    rollingSum += max(0, values[offset])
+                    if (offset + denominator < values.size) {
+                        rollingSum -= max(0, values[offset + denominator])
+                    }
 
-                val normalizedRollingSum = rollingSum / 1000
-                if (values[offset] != Entry.SKIP) {
-                    val percentageCompleted = if (!isAtMost) {
-                        if (targetValue > 0) {
-                            min(1.0, normalizedRollingSum / targetValue)
-                        } else {
-                            1.0
-                        }
-                    } else {
-                        if (targetValue > 0) {
-                            (1 - ((normalizedRollingSum - targetValue) / targetValue)).coerceIn(
-                                0.0,
+                    val normalizedRollingSum = rollingSum / 1000
+                    if (values[offset] != Entry.SKIP) {
+                        val percentageCompleted = if (!isAtMost) {
+                            if (targetValue > 0) {
+                                min(1.0, normalizedRollingSum / targetValue)
+                            } else {
                                 1.0
-                            )
+                            }
                         } else {
-                            if (normalizedRollingSum > 0) 0.0 else 1.0
+                            if (targetValue > 0) {
+                                (1 - ((normalizedRollingSum - targetValue) / targetValue)).coerceIn(
+                                    0.0,
+                                    1.0
+                                )
+                            } else {
+                                if (normalizedRollingSum > 0) 0.0 else 1.0
+                            }
+                        }
+
+                        previousValue = compute(freq, previousValue, percentageCompleted)
+                    }
+                }
+                HabitType.MOOD -> {
+                    // Mood habits have no score: there's no target to hit and no notion of a
+                    // "good" or "bad" mood to build a percentage out of. previousValue is left
+                    // untouched, so every day gets the initial 0.0. See ShowHabitView,
+                    // HabitCardView and GlobalScoreActivity, which hide the score UI and exclude
+                    // mood habits from aggregate scoring entirely.
+                }
+                HabitType.YES_NO -> {
+                    if (values[offset] == Entry.YES_MANUAL) {
+                        rollingSum += 1.0
+                    }
+                    if (offset + denominator < values.size) {
+                        if (values[offset + denominator] == Entry.YES_MANUAL) {
+                            rollingSum -= 1.0
                         }
                     }
-
-                    previousValue = compute(freq, previousValue, percentageCompleted)
-                }
-            } else {
-                if (values[offset] == Entry.YES_MANUAL) {
-                    rollingSum += 1.0
-                }
-                if (offset + denominator < values.size) {
-                    if (values[offset + denominator] == Entry.YES_MANUAL) {
-                        rollingSum -= 1.0
+                    if (values[offset] != Entry.SKIP) {
+                        val percentageCompleted = min(1.0, rollingSum / numerator)
+                        previousValue = compute(freq, previousValue, percentageCompleted)
                     }
-                }
-                if (values[offset] != Entry.SKIP) {
-                    val percentageCompleted = min(1.0, rollingSum / numerator)
-                    previousValue = compute(freq, previousValue, percentageCompleted)
                 }
             }
             val date = from.plus(i)

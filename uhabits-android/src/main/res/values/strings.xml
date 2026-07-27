@@ -221,6 +221,8 @@
     <string name="yes_or_no_example">e.g. Did you wake up early today? Did you exercise? Did you play chess?</string>
     <string name="measurable">Measurable</string>
     <string name="measurable_example">e.g. How many miles did you run today? How many pages did you read?</string>
+    <string name="mood_habit">Mood</string>
+    <string name="mood_habit_example">e.g. How did you feel today?</string>
     <string name="x_times_per_week">%d times per week</string>
     <string name="x_times_per_month">%d times per month</string>
     <string name="x_times_per_y_days">%d times in %d days</string>
@@ -230,6 +232,48 @@
     <string name="measurable_short_example">e.g. Run</string>
     <string name="measurable_question_example">e.g. How many miles did you run today?</string>
     <string name="measurable_units_example">e.g. miles</string>
+    <string name="mood_short_example">e.g. Mood</string>
+    <string name="mood_question_example">e.g. How did you feel today?</string>
+    <string name="mood_cell_description">%1$s: pleasantness %2$d out of 5, energy %3$d out of 5</string>
+    <string name="mood_axis_pleasant">Pleasant</string>
+    <string name="mood_axis_unpleasant">Unpleasant</string>
+    <string name="mood_axis_high_energy">High\nenergy</string>
+    <string name="mood_axis_low_energy">Low\nenergy</string>
+    <!--
+      Approximates the vocabulary and quadrant layout of the Yale Center for Emotional
+      Intelligence's Mood Meter (red: unpleasant/high-energy, yellow: pleasant/high-energy,
+      blue: unpleasant/low-energy, green: pleasant/low-energy), condensed to fit this app's 5x5
+      grid instead of the original's 10x10. Ordered row-major from the top row (highest energy)
+      to the bottom row (lowest energy), each row from least to most pleasant, matching
+      MoodDialog's grid-building loop order, so index = (Mood.MAX - arousal) * 5 + (valence - 1).
+    -->
+    <string-array name="mood_words">
+        <item>Enraged</item>
+        <item>Anxious</item>
+        <item>Surprised</item>
+        <item>Energized</item>
+        <item>Ecstatic</item>
+        <item>Frustrated</item>
+        <item>Worried</item>
+        <item>Startled</item>
+        <item>Motivated</item>
+        <item>Excited</item>
+        <item>Annoyed</item>
+        <item>Uneasy</item>
+        <item>Neutral</item>
+        <item>Pleased</item>
+        <item>Joyful</item>
+        <item>Disappointed</item>
+        <item>Gloomy</item>
+        <item>Calm</item>
+        <item>Content</item>
+        <item>Happy</item>
+        <item>Despondent</item>
+        <item>Sad</item>
+        <item>Relaxed</item>
+        <item>Serene</item>
+        <item>Peaceful</item>
+    </string-array>
     <string name="every_month">Every month</string>
     <string name="validation_cannot_be_blank">Cannot be blank</string>
     <string name="today">Today</string>

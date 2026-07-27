@@ -40,7 +40,7 @@ open class CheckmarkWidget(
     override val defaultWidth: Int = 125
 
     override fun getOnClickPendingIntent(context: Context): PendingIntent? {
-        return if (habit.isNumerical) {
+        return if (habit.isNumerical || habit.isMood) {
             pendingIntentFactory.showNumberPicker(habit, getToday())
         } else {
             pendingIntentFactory.toggleCheckmark(habit, null)
@@ -57,6 +57,9 @@ open class CheckmarkWidget(
             if (habit.isNumerical) {
                 isNumerical = true
                 entryState = getNumericalEntryState()
+            } else if (habit.isMood) {
+                isMood = true
+                entryState = habit.computedEntries.get(today).value
             } else {
                 entryState = habit.computedEntries.get(today).value
             }

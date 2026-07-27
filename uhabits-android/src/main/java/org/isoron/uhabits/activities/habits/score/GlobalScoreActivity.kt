@@ -26,6 +26,7 @@ import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitMatcher
+import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.models.Score
 import org.isoron.uhabits.core.preferences.Preferences
 
@@ -92,7 +93,11 @@ class GlobalScoreActivity : AppCompatActivity() {
             )
         }
 
+        // Mood habits have no score, so they'd distort the average (and their own moving parts
+        // aren't otherwise comparable to progress on regular habits) -- leave them out of the
+        // global trend entirely.
         val visibleHabits = app.component.habitList.getFiltered(matcher).toList()
+            .filter { it.type != HabitType.MOOD }
         if (visibleHabits.isEmpty()) {
             return GlobalScoreState(
                 visibleHabits = 0,

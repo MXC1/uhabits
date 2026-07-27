@@ -25,6 +25,7 @@ import org.isoron.uhabits.core.database.EntryRepository
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.Frequency
+import org.isoron.uhabits.core.models.HabitType
 
 class SQLiteEntryList(val repository: EntryRepository) : EntryList() {
     var habitId: Long? = null
@@ -72,7 +73,7 @@ class SQLiteEntryList(val repository: EntryRepository) : EntryList() {
         return super.getKnown()
     }
 
-    override fun recomputeFrom(originalEntries: EntryList, frequency: Frequency, isNumerical: Boolean) {
+    override fun recomputeFrom(originalEntries: EntryList, frequency: Frequency, type: HabitType) {
         throw UnsupportedOperationException()
     }
 

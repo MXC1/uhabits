@@ -31,6 +31,7 @@ import android.widget.TextView
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.preferences.WidgetPreferences
 import org.isoron.uhabits.widgets.WidgetUpdater
 
@@ -41,7 +42,17 @@ class BooleanHabitPickerDialog : HabitPickerDialog() {
 
 class NumericalHabitPickerDialog : HabitPickerDialog() {
     override fun shouldHideBoolean() = true
+    override fun shouldHideMood() = true
     override fun getEmptyMessage() = R.string.no_numerical_habits
+}
+
+/**
+ * Used by widgets (e.g. Frequency) whose chart is a sum over time -- meaningless for mood
+ * habits, since summing mood levels doesn't produce a useful signal.
+ */
+class NonMoodHabitPickerDialog : HabitPickerDialog() {
+    override fun shouldHideMood() = true
+    override fun getEmptyMessage() = R.string.no_habits
 }
 
 open class HabitPickerDialog : Activity() {
@@ -52,6 +63,7 @@ open class HabitPickerDialog : Activity() {
 
     protected open fun shouldHideNumerical() = false
     protected open fun shouldHideBoolean() = false
+    protected open fun shouldHideMood() = false
     protected open fun getEmptyMessage() = R.string.no_habits
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,8 +79,9 @@ open class HabitPickerDialog : Activity() {
         val habitNames = ArrayList<String>()
         for (h in habitList) {
             if (h.isArchived) continue
-            if (h.isNumerical and shouldHideNumerical()) continue
-            if (!h.isNumerical and shouldHideBoolean()) continue
+            if (h.isNumerical && shouldHideNumerical()) continue
+            if (h.isMood && shouldHideMood()) continue
+            if (h.type == HabitType.YES_NO && shouldHideBoolean()) continue
             habitIds.add(h.id!!)
             habitNames.add(h.name)
         }

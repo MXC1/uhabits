@@ -47,6 +47,7 @@ import org.isoron.uhabits.core.ui.views.Theme
 data class ShowHabitState(
     val title: String = "",
     val isNumerical: Boolean = false,
+    val isMood: Boolean = false,
     val color: PaletteColor = PaletteColor(1),
     val subtitle: SubtitleCardState,
     val overview: OverviewCardState,
@@ -95,6 +96,7 @@ class ShowHabitPresenter(
                 title = habit.name,
                 color = habit.color,
                 isNumerical = habit.isNumerical,
+                isMood = habit.isMood,
                 theme = theme,
                 subtitle = SubtitleCardPresenter.buildState(
                     habit = habit,

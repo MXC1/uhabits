@@ -30,11 +30,14 @@ import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
+import org.isoron.uhabits.core.models.HabitType
+import org.isoron.uhabits.core.models.Mood
 import org.isoron.uhabits.core.models.NumericalHabitType.AT_LEAST
 import org.isoron.uhabits.core.models.NumericalHabitType.AT_MOST
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.callbacks.CheckMarkDialogCallback
+import org.isoron.uhabits.core.ui.callbacks.MoodPickerCallback
 import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import org.isoron.uhabits.core.ui.views.HistoryChart
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.DIMMED
@@ -66,26 +69,30 @@ class HistoryCardPresenter(
 
     override fun onDateLongPress(date: LocalDate) {
         screen.showFeedback()
-        if (habit.isNumerical) {
-            showNumberPopup(date)
-        } else {
-            if (preferences.isShortToggleEnabled) {
-                showCheckmarkPopup(date)
-            } else {
-                toggle(date)
+        when (habit.type) {
+            HabitType.NUMERICAL -> showNumberPopup(date)
+            HabitType.MOOD -> showMoodPopup(date)
+            HabitType.YES_NO -> {
+                if (preferences.isShortToggleEnabled) {
+                    showCheckmarkPopup(date)
+                } else {
+                    toggle(date)
+                }
             }
         }
     }
 
     override fun onDateShortPress(date: LocalDate) {
         screen.showFeedback()
-        if (habit.isNumerical) {
-            showNumberPopup(date)
-        } else {
-            if (preferences.isShortToggleEnabled) {
-                toggle(date)
-            } else {
-                showCheckmarkPopup(date)
+        when (habit.type) {
+            HabitType.NUMERICAL -> showNumberPopup(date)
+            HabitType.MOOD -> showMoodPopup(date)
+            HabitType.YES_NO -> {
+                if (preferences.isShortToggleEnabled) {
+                    toggle(date)
+                } else {
+                    showCheckmarkPopup(date)
+                }
             }
         }
     }
@@ -127,6 +134,25 @@ class HistoryCardPresenter(
         )
     }
 
+    private fun showMoodPopup(date: LocalDate) {
+        val entry = habit.computedEntries.get(date)
+        screen.showMoodPopup(
+            entry.value,
+            entry.notes,
+            habit.color
+        ) { newValue, newNotes ->
+            commandRunner.run(
+                CreateRepetitionCommand(
+                    habitList,
+                    habit,
+                    date,
+                    newValue,
+                    newNotes
+                )
+            )
+        }
+    }
+
     private fun showNumberPopup(date: LocalDate) {
         val entry = habit.computedEntries.get(date)
         val oldValue = entry.value
@@ -160,8 +186,8 @@ class HistoryCardPresenter(
             val today = getToday()
             val oldest = habit.computedEntries.getKnown().lastOrNull()?.date ?: today
             val entries = habit.computedEntries.getByInterval(oldest, today)
-            val series = if (habit.isNumerical) {
-                entries.map {
+            val series = when (habit.type) {
+                HabitType.NUMERICAL -> entries.map {
                     when {
                         it.value == Entry.UNKNOWN -> OFF
                         it.value == SKIP -> HATCHED
@@ -170,8 +196,16 @@ class HistoryCardPresenter(
                         else -> GREY
                     }
                 }
-            } else {
-                entries.map {
+                HabitType.MOOD -> entries.map {
+                    // The calendar only shows logged/not-logged; the actual mood level is
+                    // visible on the list-screen buttons and the score trend below.
+                    when {
+                        it.value == SKIP -> HATCHED
+                        Mood.isKnownValue(it.value) -> ON
+                        else -> OFF
+                    }
+                }
+                HabitType.YES_NO -> entries.map {
                     when (it.value) {
                         YES_MANUAL -> ON
                         YES_AUTO -> DIMMED
@@ -212,6 +246,12 @@ class HistoryCardPresenter(
             notes: String,
             color: PaletteColor,
             callback: CheckMarkDialogCallback
+        )
+        fun showMoodPopup(
+            selectedValue: Int,
+            notes: String,
+            color: PaletteColor,
+            callback: MoodPickerCallback
         )
     }
 }

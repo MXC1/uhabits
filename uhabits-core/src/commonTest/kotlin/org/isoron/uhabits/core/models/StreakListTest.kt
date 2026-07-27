@@ -65,3 +65,65 @@ class StreakListTest : BaseUnitTest() {
         assertEquals(1, best[0].length)
     }
 }
+
+class MoodStreakListTest : BaseUnitTest() {
+    private lateinit var habit: Habit
+    private lateinit var today: LocalDate
+
+    @BeforeTest
+    override fun setUp() {
+        super.setUp()
+        habit = fixtures.createEmptyMoodHabit()
+        today = getToday()
+    }
+
+    private fun addMood(day: Int, level: Int) {
+        habit.originalEntries.add(Entry(today.minus(day), Mood.toEntryValue(level)))
+    }
+
+    @Test
+    fun testConsecutiveLoggedDaysFormAStreak() {
+        // Any known mood level counts toward the streak, regardless of how positive or negative
+        // it is -- there is no target to hit, only whether the user logged something.
+        for (day in 0..4) addMood(day, if (day % 2 == 0) 5 else 1)
+        habit.recompute()
+        val best = habit.streaks.getBest(1)
+        assertEquals(1, best.size)
+        assertEquals(5, best[0].length)
+    }
+
+    @Test
+    fun testGapBreaksStreak() {
+        for (day in 0..2) addMood(day, 3)
+        // day 3 intentionally left unlogged (UNKNOWN)
+        for (day in 4..6) addMood(day, 3)
+        habit.recompute()
+        val best = habit.streaks.getBest(2)
+        assertEquals(2, best.size)
+        assertEquals(3, best[0].length)
+        assertEquals(3, best[1].length)
+    }
+
+    @Test
+    fun testSkipDoesNotCountTowardStreak() {
+        addMood(0, 4)
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        addMood(2, 4)
+        habit.recompute()
+        val best = habit.streaks.getBest(2)
+        assertEquals(2, best.size)
+        assertEquals(1, best[0].length)
+        assertEquals(1, best[1].length)
+    }
+
+    @Test
+    fun testDualEncodedEntriesCountTowardStreak() {
+        for (day in 0..4) {
+            habit.originalEntries.add(Entry(today.minus(day), Mood.toEntryValue(valence = 3, arousal = day + 1)))
+        }
+        habit.recompute()
+        val best = habit.streaks.getBest(1)
+        assertEquals(1, best.size)
+        assertEquals(5, best[0].length)
+    }
+}

@@ -84,9 +84,11 @@ enum class StackWidgetType(val value: Int) {
             widgetType: StackWidgetType,
             habits: List<Habit>
         ): PendingIntent {
-            val containsNumerical = habits.any { it.isNumerical }
+            // Numerical and mood habits both need the full edit dialog rather than a simple
+            // toggle -- see the analogous check in getIntentFillIn below.
+            val requiresEditDialog = habits.any { it.isNumerical || it.isMood }
             return when (widgetType) {
-                CHECKMARK -> if (containsNumerical) {
+                CHECKMARK -> if (requiresEditDialog) {
                     factory.showNumberPickerTemplate()
                 } else {
                     factory.toggleCheckmarkTemplate()
@@ -102,9 +104,9 @@ enum class StackWidgetType(val value: Int) {
             allHabitsInStackWidget: List<Habit>,
             today: LocalDate
         ): Intent {
-            val containsNumerical = allHabitsInStackWidget.any { it.isNumerical }
+            val requiresEditDialog = allHabitsInStackWidget.any { it.isNumerical || it.isMood }
             return when (widgetType) {
-                CHECKMARK -> if (containsNumerical) {
+                CHECKMARK -> if (requiresEditDialog) {
                     factory.showNumberPickerFillIn(habit, today)
                 } else {
                     factory.toggleCheckmarkFillIn(habit, today)

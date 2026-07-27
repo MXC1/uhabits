@@ -41,6 +41,7 @@ import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.RingView
 import org.isoron.uhabits.core.models.Habit
+import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
 import org.isoron.uhabits.inject.ActivityContext
@@ -53,15 +54,17 @@ class HabitCardViewFactory(
     @ActivityContext val context: Context,
     private val checkmarkPanelFactory: CheckmarkPanelViewFactory,
     private val numberPanelFactory: NumberPanelViewFactory,
+    private val moodPanelFactory: MoodPanelViewFactory,
     private val behavior: ListHabitsBehavior
 ) {
-    fun create() = HabitCardView(context, checkmarkPanelFactory, numberPanelFactory, behavior)
+    fun create() = HabitCardView(context, checkmarkPanelFactory, numberPanelFactory, moodPanelFactory, behavior)
 }
 
 class HabitCardView(
     @ActivityContext context: Context,
     checkmarkPanelFactory: CheckmarkPanelViewFactory,
     numberPanelFactory: NumberPanelViewFactory,
+    moodPanelFactory: MoodPanelViewFactory,
     private val behavior: ListHabitsBehavior
 ) : FrameLayout(context),
     ModelObservable.Listener {
@@ -71,6 +74,7 @@ class HabitCardView(
         set(value) {
             checkmarkPanel.buttonCount = value
             numberPanel.buttonCount = value
+            moodPanel.buttonCount = value
         }
 
     var dataOffset = 0
@@ -78,6 +82,7 @@ class HabitCardView(
             field = value
             checkmarkPanel.dataOffset = value
             numberPanel.dataOffset = value
+            moodPanel.dataOffset = value
         }
 
     var habit: Habit? = null
@@ -108,6 +113,7 @@ class HabitCardView(
         set(values) {
             checkmarkPanel.values = values
             numberPanel.values = values.map { it / 1000.0 }.toDoubleArray()
+            moodPanel.values = values
         }
 
     var threshold: Double
@@ -121,10 +127,12 @@ class HabitCardView(
         set(values) {
             checkmarkPanel.notes = values
             numberPanel.notes = values
+            moodPanel.notes = values
         }
 
     var checkmarkPanel: CheckmarkPanelView
     private var numberPanel: NumberPanelView
+    private var moodPanel: MoodPanelView
     private var innerFrame: LinearLayout
     private var label: TextView
     private var scoreRing: RingView
@@ -183,6 +191,15 @@ class HabitCardView(
             }
         }
 
+        moodPanel = moodPanelFactory.create().apply {
+            visibility = GONE
+            onEdit = { date ->
+                triggerRipple(date)
+                val location = getAbsoluteButtonLocation(date)
+                habit?.let { behavior.onEdit(it, date, location.x, location.y) }
+            }
+        }
+
         innerFrame = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = LinearLayout.HORIZONTAL
@@ -193,6 +210,7 @@ class HabitCardView(
             addView(label)
             addView(checkmarkPanel)
             addView(numberPanel)
+            addView(moodPanel)
 
             setOnTouchListener { v, event ->
                 v.background.setHotspot(event.x, event.y)
@@ -226,9 +244,10 @@ class HabitCardView(
     private fun getRelativeButtonLocation(date: LocalDate): PointF {
         val today = getToday()
         val offset = date.daysUntil(today) - dataOffset
-        val panel = when (habit!!.isNumerical) {
-            true -> numberPanel
-            false -> checkmarkPanel
+        val panel = when (habit!!.type) {
+            HabitType.NUMERICAL -> numberPanel
+            HabitType.MOOD -> moodPanel
+            HabitType.YES_NO -> checkmarkPanel
         }
         val button = panel.buttons[offset]
         val y = button.height / 2.0f
@@ -278,23 +297,24 @@ class HabitCardView(
         }
         scoreRing.apply {
             setColor(c)
+            // Mood habits have no score to show -- there's no target or "good/bad" direction to
+            // compute a percentage from.
+            visibility = if (h.type == HabitType.MOOD) View.GONE else View.VISIBLE
         }
         checkmarkPanel.apply {
             color = c
-            visibility = when (h.isNumerical) {
-                true -> View.GONE
-                false -> View.VISIBLE
-            }
+            visibility = if (h.type == HabitType.YES_NO) View.VISIBLE else View.GONE
         }
         numberPanel.apply {
             color = c
             units = h.unit
             targetType = h.targetType
             threshold = h.targetValue
-            visibility = when (h.isNumerical) {
-                true -> View.VISIBLE
-                false -> View.GONE
-            }
+            visibility = if (h.type == HabitType.NUMERICAL) View.VISIBLE else View.GONE
+        }
+        moodPanel.apply {
+            color = c
+            visibility = if (h.type == HabitType.MOOD) View.VISIBLE else View.GONE
         }
     }
 

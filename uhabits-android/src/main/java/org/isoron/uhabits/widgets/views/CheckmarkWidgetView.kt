@@ -32,11 +32,13 @@ import org.isoron.uhabits.core.models.Entry.Companion.SKIP
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
+import org.isoron.uhabits.core.models.Mood
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.inject.HabitsApplicationComponent
 import org.isoron.uhabits.utils.InterfaceUtils.getDimension
 import org.isoron.uhabits.utils.PaletteUtils.getAndroidTestColor
 import org.isoron.uhabits.utils.StyledResources
+import org.isoron.uhabits.utils.moodGlyphRes
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -51,6 +53,7 @@ class CheckmarkWidgetView : HabitWidgetView {
     var entryValue = 0
     var entryState = 0
     var isNumerical = false
+    var isMood = false
     private var preferences: Preferences? = null
 
     constructor(context: Context?) : super(context) {
@@ -67,21 +70,19 @@ class CheckmarkWidgetView : HabitWidgetView {
         val bgColor: Int
         val fgColor: Int
         setShadowAlpha(0x4f)
-        when (entryState) {
-            YES_MANUAL, SKIP, YES_AUTO -> {
-                bgColor = activeColor
-                fgColor = res.getColor(R.attr.contrast0)
-                backgroundPaint!!.color = bgColor
-                frame!!.setBackgroundDrawable(background)
-            }
-            NO, UNKNOWN -> {
-                bgColor = res.getColor(R.attr.cardBgColor)
-                fgColor = res.getColor(R.attr.contrast60)
-            }
-            else -> {
-                bgColor = res.getColor(R.attr.cardBgColor)
-                fgColor = res.getColor(R.attr.contrast60)
-            }
+        val isActive = if (isMood) {
+            Mood.isKnownValue(entryValue) || entryState == SKIP
+        } else {
+            entryState == YES_MANUAL || entryState == SKIP || entryState == YES_AUTO
+        }
+        if (isActive) {
+            bgColor = activeColor
+            fgColor = res.getColor(R.attr.contrast0)
+            backgroundPaint!!.color = bgColor
+            frame!!.setBackgroundDrawable(background)
+        } else {
+            bgColor = res.getColor(R.attr.cardBgColor)
+            fgColor = res.getColor(R.attr.contrast60)
         }
         ring.setPercentage(percentage)
         ring.setColor(fgColor)
@@ -95,7 +96,7 @@ class CheckmarkWidgetView : HabitWidgetView {
     }
 
     private val strokedTextEnabled: Boolean
-        get() = if (isNumerical) {
+        get() = if (isNumerical || isMood) {
             false
         } else {
             when (entryState) {
@@ -105,10 +106,16 @@ class CheckmarkWidgetView : HabitWidgetView {
         }
 
     private val text: String
-        get() = if (isNumerical) {
-            (max(0, entryValue) / 1000.0).toShortString()
-        } else {
-            when (entryState) {
+        get() = when {
+            isNumerical -> (max(0, entryValue) / 1000.0).toShortString()
+            isMood -> when {
+                entryState == SKIP -> resources.getString(R.string.fa_skipped)
+                Mood.isKnownValue(entryValue) ->
+                    resources.getString(moodGlyphRes(Mood.valenceOf(entryValue)))
+                preferences!!.areQuestionMarksEnabled -> resources.getString(R.string.fa_question)
+                else -> resources.getString(R.string.fa_times)
+            }
+            else -> when (entryState) {
                 YES_MANUAL, YES_AUTO -> resources.getString(R.string.fa_check)
                 SKIP -> resources.getString(R.string.fa_skipped)
                 UNKNOWN -> {
@@ -139,7 +146,7 @@ class CheckmarkWidgetView : HabitWidgetView {
         }
         val textSize = min(0.175f * width, getDimension(context, R.dimen.smallTextSize))
         label.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
-        if (isNumerical) {
+        if (isNumerical || isMood) {
             ring.setTextSize(textSize * 0.9f)
         } else {
             ring.setTextSize(textSize)

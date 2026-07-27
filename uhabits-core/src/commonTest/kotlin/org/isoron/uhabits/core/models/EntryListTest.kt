@@ -74,7 +74,7 @@ class EntryListTest {
         original.add(Entry(today.minus(10), YES_MANUAL))
 
         val computed = EntryList()
-        computed.recomputeFrom(original, Frequency(1, 3), isNumerical = false)
+        computed.recomputeFrom(original, Frequency(1, 3), type = HabitType.YES_NO)
 
         val expected = listOf(
             Entry(today.minus(4), YES_MANUAL),
@@ -84,7 +84,7 @@ class EntryListTest {
         assertEquals(expected, computed.getKnown())
 
         // Second call should replace all previously added entries
-        computed.recomputeFrom(EntryList(), Frequency(1, 3), isNumerical = false)
+        computed.recomputeFrom(EntryList(), Frequency(1, 3), type = HabitType.YES_NO)
         assertEquals(listOf(), computed.getKnown())
     }
 
@@ -98,12 +98,32 @@ class EntryListTest {
         original.add(Entry(today.minus(10), 300))
 
         val computed = EntryList()
-        computed.recomputeFrom(original, Frequency.DAILY, isNumerical = true)
+        computed.recomputeFrom(original, Frequency.DAILY, type = HabitType.NUMERICAL)
 
         val expected = listOf(
             Entry(today.minus(4), 100),
             Entry(today.minus(9), 200),
             Entry(today.minus(10), 300)
+        )
+        assertEquals(expected, computed.getKnown())
+    }
+
+    @Test
+    fun testComputeMood() {
+        val today = LocalDate(2015, 1, 25)
+
+        val original = EntryList()
+        original.add(Entry(today.minus(4), 4000))
+        original.add(Entry(today.minus(9), 2000))
+        original.add(Entry(today.minus(10), 5000))
+
+        val computed = EntryList()
+        computed.recomputeFrom(original, Frequency.DAILY, type = HabitType.MOOD)
+
+        val expected = listOf(
+            Entry(today.minus(4), 4000),
+            Entry(today.minus(9), 2000),
+            Entry(today.minus(10), 5000)
         )
         assertEquals(expected, computed.getKnown())
     }

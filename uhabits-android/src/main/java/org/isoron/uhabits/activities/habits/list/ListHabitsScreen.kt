@@ -35,6 +35,7 @@ import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.dialogs.CheckmarkDialog
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
 import org.isoron.uhabits.activities.common.dialogs.ConfirmDeleteDialog
+import org.isoron.uhabits.activities.common.dialogs.MoodDialog
 import org.isoron.uhabits.activities.common.dialogs.NumberDialog
 import org.isoron.uhabits.activities.habits.edit.HabitTypeDialog
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
@@ -52,6 +53,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.isoron.uhabits.core.ui.callbacks.CheckMarkDialogCallback
+import org.isoron.uhabits.core.ui.callbacks.MoodPickerCallback
 import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import org.isoron.uhabits.core.ui.callbacks.OnColorPickedCallback
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
@@ -305,6 +307,24 @@ class ListHabitsScreen(
         }
         dialog.onToggle = { v, n -> callback.onNotesSaved(v, n) }
         dialog.dismissCurrentAndShow(fm, "checkmarkDialog")
+    }
+
+    override fun showMoodPopup(
+        selectedValue: Int,
+        notes: String,
+        color: PaletteColor,
+        callback: MoodPickerCallback
+    ) {
+        val theme = rootView.value.currentTheme()
+        val fm = (context as AppCompatActivity).supportFragmentManager
+        val dialog = MoodDialog()
+        dialog.arguments = Bundle().apply {
+            putInt("color", theme.color(color).toInt())
+            putInt("value", selectedValue)
+            putString("notes", notes)
+        }
+        dialog.onToggle = { v, n -> callback.onMoodPicked(v, n) }
+        dialog.dismissCurrentAndShow(fm, "moodDialog")
     }
 
     private fun getExecuteString(command: Command): String? {

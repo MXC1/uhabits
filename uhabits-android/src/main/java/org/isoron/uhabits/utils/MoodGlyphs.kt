@@ -16,32 +16,22 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.isoron.uhabits.core.ui.callbacks
 
-fun interface NumberPickerCallback {
-    fun onNumberPicked(
-        newValue: Double,
-        notes: String
-    )
-    fun onNumberPickerDismissed() {}
-}
+package org.isoron.uhabits.utils
 
-fun interface CheckMarkDialogCallback {
-    fun onNotesSaved(
-        value: Int,
-        notes: String
-    )
-    fun onNotesDismissed() {}
-}
+import androidx.annotation.StringRes
+import org.isoron.uhabits.R
+import org.isoron.uhabits.core.models.Mood
 
-fun interface MoodPickerCallback {
-    /**
-     * @param value the raw Entry.value to store: Entry.SKIP, Entry.UNKNOWN, or a mood level
-     * scaled x1000 (1000..5000), matching how numerical values are encoded.
-     */
-    fun onMoodPicked(
-        value: Int,
-        notes: String
-    )
-    fun onMoodPickerDismissed() {}
+/**
+ * FontAwesome glyph representing a mood level (1..5), used consistently across the list-screen
+ * buttons, the entry dialog, and widgets.
+ */
+@StringRes
+fun moodGlyphRes(level: Int): Int = when (level) {
+    Mood.MIN -> R.string.fa_thumbs_o_down
+    2 -> R.string.fa_frown_o
+    3 -> R.string.fa_meh_o
+    4 -> R.string.fa_smile_o
+    else -> R.string.fa_thumbs_o_up
 }

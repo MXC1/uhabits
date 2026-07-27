@@ -27,6 +27,8 @@ import org.isoron.uhabits.core.commands.UnarchiveHabitsCommand
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
+import org.isoron.uhabits.core.models.HabitType
+import org.isoron.uhabits.core.models.Mood
 import org.isoron.uhabits.core.tasks.ExportCSVTask
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
@@ -98,6 +100,13 @@ class ShowHabitMenuPresenter(
             if (habit.isNumerical) {
                 value =
                     (1000 + 250 * nextGaussian() * strength / 100).toInt() * 1000
+            }
+            if (habit.type == HabitType.MOOD) {
+                val valence = (1 + 4 * strength / 100 + nextGaussian()).toInt()
+                    .coerceIn(Mood.MIN, Mood.MAX)
+                val arousal = (1 + 4 * kotlin.random.Random.nextDouble()).toInt()
+                    .coerceIn(Mood.MIN, Mood.MAX)
+                value = Mood.toEntryValue(valence, arousal)
             }
             habit.originalEntries.add(Entry(getToday().minus(i), value))
         }

@@ -145,6 +145,13 @@ class EditHabitActivity : AppCompatActivity() {
                 binding.questionInput.hint = getString(R.string.measurable_question_example)
                 binding.frequencyOuterBox.visibility = View.GONE
             }
+            HabitType.MOOD -> {
+                binding.nameInput.hint = getString(R.string.mood_short_example)
+                binding.questionInput.hint = getString(R.string.mood_question_example)
+                binding.unitOuterBox.visibility = View.GONE
+                binding.targetOuterBox.visibility = View.GONE
+                binding.targetTypeOuterBox.visibility = View.GONE
+            }
         }
 
         setSupportActionBar(binding.toolbar)

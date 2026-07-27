@@ -70,6 +70,16 @@ class HabitFixtures(
         return habit
     }
 
+    fun createEmptyMoodHabit(): Habit {
+        val habit = modelFactory.buildHabit()
+        habit.type = HabitType.MOOD
+        habit.name = "Mood"
+        habit.question = "How did you feel today?"
+        habit.color = PaletteColor(2)
+        saveIfSQLite(habit)
+        return habit
+    }
+
     fun createLongHabit(): Habit {
         val habit = createEmptyHabit()
         habit.frequency = Frequency(3, 7)

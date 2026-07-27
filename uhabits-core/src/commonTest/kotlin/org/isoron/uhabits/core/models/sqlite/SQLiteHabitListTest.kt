@@ -26,6 +26,7 @@ import org.isoron.uhabits.core.database.HabitRepository
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
+import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
@@ -111,6 +112,23 @@ class SQLiteHabitListTest : BaseUnitTest() {
         val all = repository.findAll()
         val record = all.find { it.id == habit.id }
         assertEquals(habit.name, record!!.name)
+    }
+
+    @Test
+    fun testAdd_withMoodType() = dbTest {
+        val habit = modelFactory.buildHabit()
+        habit.type = HabitType.MOOD
+        habit.name = "Mood"
+        habitList.add(habit)
+
+        val record = repository.findAll().find { it.id == habit.id }
+        assertEquals(HabitType.MOOD.value, record!!.type)
+
+        val reloaded = habitList.getById(habit.id!!)!!
+        assertEquals(HabitType.MOOD, reloaded.type)
+        // Fields only meaningful for numerical habits should just come back as defaults.
+        assertEquals(0.0, reloaded.targetValue)
+        assertEquals("", reloaded.unit)
     }
 
     @Test

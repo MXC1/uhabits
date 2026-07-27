@@ -33,6 +33,7 @@ import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
+import org.isoron.uhabits.core.ui.callbacks.MoodPickerCallback
 import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -88,6 +89,26 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
         }
         capturedPicker!!.onNumberPicked(100.0, "")
         assertEquals(100000, habit2.computedEntries.get(today).value)
+    }
+
+    @Test
+    fun testOnEdit_mood() {
+        val today = getToday()
+        val moodHabit = fixtures.createEmptyMoodHabit()
+        habitList.add(moodHabit)
+        var capturedMoodPicker: MoodPickerCallback? = null
+        every {
+            screen.showMoodPopup(any(), any(), any(), any())
+        } calls { args ->
+            capturedMoodPicker = args.arg<MoodPickerCallback>(3)
+            Unit
+        }
+        behavior.onEdit(moodHabit, today, 0f, 0f)
+        verify {
+            screen.showMoodPopup(Entry.UNKNOWN, "", moodHabit.color, any())
+        }
+        capturedMoodPicker!!.onMoodPicked(4000, "")
+        assertEquals(4000, moodHabit.computedEntries.get(today).value)
     }
 
     @Test

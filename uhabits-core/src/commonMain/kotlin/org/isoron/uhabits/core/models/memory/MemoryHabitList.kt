@@ -22,6 +22,7 @@ import org.isoron.platform.Synchronized
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
+import org.isoron.uhabits.core.models.HabitType
 
 /**
  * In-memory implementation of [HabitList].
@@ -104,12 +105,20 @@ open class MemoryHabitList : HabitList {
         firstOrder: Order,
         secondOrder: Order?
     ): Comparator<Habit> {
-        return Comparator { h1: Habit, h2: Habit ->
+        val orderedComparator = Comparator<Habit> { h1: Habit, h2: Habit ->
             val firstResult = getComparatorByOrder(firstOrder).compare(h1, h2)
             if (firstResult != 0 || secondOrder == null) {
                 return@Comparator firstResult
             }
             getComparatorByOrder(secondOrder).compare(h1, h2)
+        }
+        // Mood habits are pinned to the top of the list regardless of sort order (including
+        // manual/BY_POSITION), since they read best as an always-visible daily check-in rather
+        // than competing for a spot among regular habits.
+        return Comparator { h1: Habit, h2: Habit ->
+            val moodRank1 = if (h1.type == HabitType.MOOD) 0 else 1
+            val moodRank2 = if (h2.type == HabitType.MOOD) 0 else 1
+            if (moodRank1 != moodRank2) moodRank1 - moodRank2 else orderedComparator.compare(h1, h2)
         }
     }
 

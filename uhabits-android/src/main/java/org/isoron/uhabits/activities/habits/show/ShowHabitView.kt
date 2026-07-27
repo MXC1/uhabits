@@ -53,7 +53,17 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         binding.frequencyCard.setState(data.frequency)
         binding.historyCard.setState(data.history)
         binding.barCard.setState(data.bar)
-        if (data.isNumerical) {
+        if (data.isMood) {
+            // Mood habits have no target, no meaningful frequency/bar chart (summing mood
+            // levels isn't meaningful), and no score -- there's no target or "good/bad"
+            // direction to compute a percentage from. The history calendar below is the
+            // primary view for mood habits.
+            binding.overviewCard.visibility = GONE
+            binding.targetCard.visibility = GONE
+            binding.frequencyCard.visibility = GONE
+            binding.barCard.visibility = GONE
+            binding.scoreCard.visibility = GONE
+        } else if (data.isNumerical) {
             binding.overviewCard.visibility = GONE
         } else {
             binding.targetCard.visibility = GONE

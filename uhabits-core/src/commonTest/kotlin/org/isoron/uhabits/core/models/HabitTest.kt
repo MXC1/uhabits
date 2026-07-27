@@ -151,6 +151,31 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
+    fun test_isCompleted_mood() {
+        val h = modelFactory.buildHabit()
+        h.type = HabitType.MOOD
+        assertTrue(h.isMood)
+        assertFalse(h.isNumerical)
+        assertFalse(h.isCompletedToday())
+        h.originalEntries.add(Entry(getToday(), Mood.toEntryValue(1)))
+        h.recompute()
+        // Even the lowest mood level counts as "completed" -- there's no target to hit,
+        // only whether the user logged something today.
+        assertTrue(h.isCompletedToday())
+    }
+
+    @Test
+    fun test_copyAttributes_mood() {
+        val model = modelFactory.buildHabit()
+        model.type = HabitType.MOOD
+        val habit = modelFactory.buildHabit()
+        habit.copyFrom(model)
+        assertEquals(model.type, habit.type)
+        assertEquals(model, habit)
+        assertEquals(model.hashCode(), habit.hashCode())
+    }
+
+    @Test
     fun testURI() {
         assertTrue(habitList.isEmpty)
         val h = modelFactory.buildHabit()
