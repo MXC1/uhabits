@@ -87,7 +87,11 @@ The repository will be downloaded to the directory `uhabits`.
 
 If the compilation is successful, a debug APK will be generated somewhere inside the folder `uhabits-android/build/`. Currently, the full path is `./uhabits-android/build/outputs/apk/debug/uhabits-android-debug.apk`, but it may change in the future.
 
-The APK can be installed using the tool `adb`, which should have been automatically installed at `/opt/android-sdk/platform-tools/adb` during compilation of the project.
+The APK can be installed using the tool `adb`, which should have been automatically installed at `/opt/android-sdk/platform-tools/adb` during compilation of the project. With your phone connected via USB and USB debugging enabled, run:
+
+```bash
+adb install -r ./uhabits-android/build/outputs/apk/debug/uhabits-android-debug.apk
+```
 
 ---
 
