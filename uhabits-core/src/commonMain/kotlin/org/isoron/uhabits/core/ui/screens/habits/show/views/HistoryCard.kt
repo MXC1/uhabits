@@ -19,6 +19,7 @@
 
 package org.isoron.uhabits.core.ui.screens.habits.show.views
 
+import org.isoron.platform.gui.Color
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
@@ -45,6 +46,7 @@ import org.isoron.uhabits.core.ui.views.HistoryChart.Square.GREY
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.HATCHED
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.OFF
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.ON
+import org.isoron.uhabits.core.ui.views.MoodMeterColors
 import org.isoron.uhabits.core.ui.views.OnDateClickedListener
 import org.isoron.uhabits.core.ui.views.Theme
 import kotlin.math.roundToInt
@@ -55,6 +57,7 @@ data class HistoryCardState(
     val series: List<HistoryChart.Square>,
     val defaultSquare: HistoryChart.Square,
     val notesIndicators: List<Boolean>,
+    val squareColors: List<Color?> = emptyList(),
     val theme: Theme,
     val today: LocalDate
 )
@@ -197,8 +200,6 @@ class HistoryCardPresenter(
                     }
                 }
                 HabitType.MOOD -> entries.map {
-                    // The calendar only shows logged/not-logged; the actual mood level is
-                    // visible on the list-screen buttons and the score trend below.
                     when {
                         it.value == SKIP -> HATCHED
                         Mood.isKnownValue(it.value) -> ON
@@ -220,6 +221,12 @@ class HistoryCardPresenter(
                     else -> true
                 }
             }
+            val squareColors = when (habit.type) {
+                HabitType.MOOD -> entries.map {
+                    if (Mood.isKnownValue(it.value)) moodColor(it.value) else null
+                }
+                else -> emptyList()
+            }
 
             return HistoryCardState(
                 color = habit.color,
@@ -228,8 +235,24 @@ class HistoryCardPresenter(
                 theme = theme,
                 series = series,
                 defaultSquare = OFF,
-                notesIndicators = notesIndicators
+                notesIndicators = notesIndicators,
+                squareColors = squareColors
             )
+        }
+
+        /**
+         * The color a mood entry was picked with on the valence x arousal mood meter grid.
+         * Legacy single-axis entries have no arousal: colored at neutral (mid) energy.
+         */
+        private fun moodColor(value: Int): Color {
+            val valenceFraction = (Mood.valenceOf(value) - Mood.MIN).toDouble() / (Mood.MAX - Mood.MIN)
+            val arousal = Mood.arousalOf(value)
+            val arousalFraction = if (arousal != null) {
+                (arousal - Mood.MIN).toDouble() / (Mood.MAX - Mood.MIN)
+            } else {
+                0.5
+            }
+            return MoodMeterColors.interpolate(valenceFraction, arousalFraction)
         }
     }
 

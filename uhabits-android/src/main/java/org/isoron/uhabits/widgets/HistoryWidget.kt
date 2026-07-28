@@ -60,6 +60,7 @@ class HistoryWidget(
             historyChart.series = model.series
             historyChart.defaultSquare = model.defaultSquare
             historyChart.notesIndicators = model.notesIndicators
+            historyChart.squareColors = model.squareColors
         }
     }
 

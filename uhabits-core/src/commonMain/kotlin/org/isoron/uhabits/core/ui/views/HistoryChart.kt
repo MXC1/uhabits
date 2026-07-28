@@ -47,7 +47,9 @@ class HistoryChart(
     var theme: Theme,
     var today: LocalDate,
     var onDateClickedListener: OnDateClickedListener = object : OnDateClickedListener {},
-    var padding: Double = 0.0
+    var padding: Double = 0.0,
+    /** Per-day override for the [Square.ON] color, aligned with [series]. Null falls back to habit color. */
+    var squareColors: List<Color?> = emptyList()
 ) : DataView {
 
     enum class Square {
@@ -209,9 +211,10 @@ class HistoryChart(
         val squareColor: Color
         val circleColor: Color
         val color = theme.color(paletteColor.paletteIndex)
+        val customColor = if (offset >= squareColors.size) null else squareColors[offset]
         squareColor = when (value) {
             Square.ON -> {
-                color
+                customColor ?: color
             }
             Square.OFF -> {
                 theme.lowContrastTextColor

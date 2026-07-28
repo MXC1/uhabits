@@ -115,6 +115,7 @@ class HistoryEditorDialog : AppCompatDialogFragment(), CommandRunner.Listener {
         chart?.series = model.series
         chart?.defaultSquare = model.defaultSquare
         chart?.notesIndicators = model.notesIndicators
+        chart?.squareColors = model.squareColors
         dataView.postInvalidate()
     }
 
